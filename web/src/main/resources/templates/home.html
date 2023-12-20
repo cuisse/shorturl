@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src='https://www.google.com/recaptcha/api.js' async defer></script>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <script th:src="@{/js/home.js}" type="text/javascript" async defer></script>
+    <style>
+        .g-recaptcha {
+            transform: scale(0.77);
+            transform-origin: 0 0;
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header>
+    <nav class="grid place-items-center" data-te-navbar-ref>
+        <div>
+            <h3 class="text-3xl font-bold mt-2">
+                <mark class="px-2 text-white bg-blue-600 rounded dark:bg-blue-500">URL</mark>
+                Shortener
+            </h3>
+        </div>
+    </nav>
+</header>
+
+<!-- Notification bar -->
+<div class="fixed top-0 right-0 left-0 z-50">
+    <div id="notification-bar"
+         class="hidden w-1/2 mx-auto h-16 flex items-center justify-center bg-green-500 bg-red-500 bg-yellow-500 rounded-b-md">
+        <div class="container flex items-center justify-between px-6 py-4 mx-auto text-white">
+            <div class="flex">
+                <svg viewBox="0 0 40 40" class="w-6 h-6 fill-current">
+                    <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 18h-2v-6h-2v-2h4v8zm-1-9.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/>
+                </svg>
+                <p id="notification-bar-text" class="mx-3"></p>
+            </div>
+            <button id="close-notification-button"
+                    class="p-1 transition-colors duration-200 transform rounded-md hover:bg-opacity-25 hover:bg-gray-600 focus:outline-none">
+                <svg class="w-5 h-5 text-white" viewBox="0 0 40 40">
+                    <path d="M10 10L30 30M30 10L10 30" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="completed-task" data-modal-backdrop="static" tabindex="-1" aria-hidden="true"
+     class="hidden overflow-y-auto overflow-x-hidden top-0 right-0 left-0 z-50 fixed inset-0 flex items-start justify-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Completion Status:
+                    <mark class="px-2 py-[0px] text-white bg-green-600 rounded dark:bg-green-500">Success</mark>
+                </h3>
+            </div>
+            <div class="p-4 md:p-5 space-y-4">
+                <a class="text-base leading-relaxed text-gray-500 dark:text-gray-400" th:href="${shorten_url}" th:text="${shorten_url}" id="short-url"></a>
+            </div>
+            <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                <button id="copy-url-button" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Copy URL
+                </button>
+                <button id="cancel-url-button" type="button" class="ms-3 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main -->
+<div id="main" class="grid place-items-center mt-16">
+    <div class="w-full max-w-xs">
+        <div class="bg-white shadow-lg hover:shadow-xl rounded px-8 pt-6 pb-8 mb-4">
+            <form id="form" action="" method="post" autocomplete="off" autocapitalize="off"
+                  onsubmit="createURL();return false;">
+                <div class="inline-block relative w-64 px-3 mb-6">
+                    <label class="tracking-wide text-gray-700 text-xs mb-2">
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" name="url" type="text" placeholder="URL" minlength=3 autofocus required>
+                    </label>
+                </div>
+                <div class="flex flex-col items-center justify-center">
+                    <input class="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded" type="submit" value="Create" id="create-button">
+                </div>
+                <div class="g-recaptcha col-sm-5 mt-5 inline-block relative w-64 px-3 mb-6 md:mb-0"
+                     th:attr="data-sitekey=${captcha_site}" id="captcha-box">
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="w-full max-w-xs mt-16">
+        <div class="bg-white shadow-lg hover:shadow-xl rounded px-8 pt-6 pb-8 mb-4">
+            <div class="text-center mb-4">
+                <span class="font-bold">Information</span>
+            </div>
+            <div class="text-justify">
+                <span>
+                    <span class="font-bold">URL Shortener</span> is a free tool designed to shorten any URL. Things this service can do:
+                </span>
+            </div>
+            <ul class="list-disc list-inside m-2 ml-6">
+                <li>Shorten URLs</li>
+                <li>Redirect to the original URL</li>
+            </ul>
+        </div>
+    </div>
+    <div class="w-full max-w-xs mt-16">
+        <div class="bg-white shadow-lg hover:shadow-xl rounded px-8 pt-6 pb-8 mb-4">
+            <div class="text-center mb-4">
+                <span>
+                    <span class="font-bold">Educational Project</span>
+                </span>
+            </div>
+            <div class="text-justify">
+                <span>
+                    This is a project for educational purposes, it is not intended to be used in production.
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="m-4 text-center">
+    <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
+        <hr class="my-6 border-gray-200 sm:mx-auto"/>
+        <span class="block text-sm text-gray-500 sm:text-center dark:text-gray-400">
+            Developed by Brayan Roman. <br>
+            Source code at <a href="https://github.com/cuisse/shorturl" class="text-blue-600 underline">GitHub</a>
+        </span>
+    </div>
+</footer>
+</body>
+</html>
